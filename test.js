@@ -33,10 +33,10 @@ const myDiv = document.getElementById('myDiv');
         styleSheet.insertRule(`
         .bot-message .message-timestamp {
             position: relative;
-            top: -15px; 
+            top: -15px; /* Adjust the vertical position as needed */
             display: block;
-            margin-bottom: 5px; 
-            text-align: right; 
+            margin-bottom: 5px; /* Add some spacing between the timestamp and the message */
+            text-align: right; /* Align the timestamp to the right */
         }
         `);
 
@@ -57,7 +57,7 @@ const myDiv = document.getElementById('myDiv');
 
         styleSheet.insertRule(`
             .user-message {
-                margin-bottom: 10px; 
+                margin-bottom: 10px; /* Adjust the margin as needed */
             }
         `);
 
@@ -73,7 +73,7 @@ const myDiv = document.getElementById('myDiv');
             }
         `);
 
-        // Create the chat container div 
+        // Create the chat container div
         const chatContainer = document.createElement("div");
         chatContainer.className = "chat-container";
         chatContainer.id = "chatContainer";
@@ -100,7 +100,7 @@ const myDiv = document.getElementById('myDiv');
 
         // Create the logo image
         const logoImg = document.createElement("img");
-
+        logoImg.src = "pic.png"; // Replace with your logo image URL
         logoImg.alt = "Antier Bot Logo";
         logoImg.style.width = "24px"; // Set the logo width (adjust as needed)
         logoImg.style.height = "24px"; // Set the logo height (adjust as needed)
@@ -263,7 +263,7 @@ const myDiv = document.getElementById('myDiv');
                 if (!isUser) {
                     // Create the logo for bot messages
                     const logoImg = document.createElement("img");
-
+                    logoImg.src = "pic.png"; // Replace with your logo image URL
                     logoImg.alt = "Bot Logo";
                     logoImg.style.width = "24px"; // Set the logo width (adjust as needed)
                     logoImg.style.height = "24px"; // Set the logo height (adjust as needed)
@@ -293,37 +293,6 @@ const myDiv = document.getElementById('myDiv');
             messageContainer.appendChild(message);
         }
 
-        async function fetchHeaderData() {
-            try {
-                const response = await fetch('http://127.0.0.1:6100/get_data'); // Replace with the correct file path
-                if (!response.ok) {
-                    throw new Error('Failed to fetch header data');
-                }
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Error fetching header data:', error);
-                return null;
-            }
-        }
-
-        // Function to update the chat header
-        async function updateChatHeader() {
-            const data = await fetchHeaderData();
-            if (data) {
-                const chatHeader = document.querySelector('.chat-header');
-                if (data.new_header) {
-                    chatHeader.textContent = data.new_header;
-                }
-                if (data.logo) {
-                    logoImg.src = data.logo; // Update the logo source dynamically
-                }
-            }
-        }
-
-        // Call the function to update the chat header
-        updateChatHeader();
-
         // Function to get the current time as a string
         function getCurrentTime() {
             const now = new Date();
@@ -336,109 +305,17 @@ const myDiv = document.getElementById('myDiv');
             toggleChatWindow();
         });
 
-        // Fetch default bot messages and suggestions
-        async function fetchDefaultBotMessages() {
-            try {
-                const response = await fetch('http://127.0.0.1:6100/get_data'); // Replace with the correct file path
-                if (!response.ok) {
-                    throw new Error('Failed to fetch default bot messages');
-                }
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Error fetching default bot messages:', error);
-                return null;
-            }
-        }
-
-        // Function to add default bot messages and suggestions
-        async function addDefaultBotMessages() {
-            const data = await fetchDefaultBotMessages();
-            if (data && data.default_bot_messages) {
-                data.default_bot_messages.forEach(message => {
-                    addMessage(message, false);
-                });
-            }
-            if (data && data.suggestions) {
-                data.suggestions.forEach(suggestion => {
-                    addSuggestion(suggestion);
-                });
-            }
-        }
-
-        // Call the function to add default bot messages and suggestions
-        addDefaultBotMessages();
-
-        // Function to add a suggestion
-        function addSuggestion(suggestion) {
-            const suggestionElement = document.createElement("div");
-            suggestionElement.classList.add("bot-message"); // Apply the CSS class for bot messages
-            suggestionElement.style.backgroundColor = "#E2DEDE"; // Bot message background color
-            suggestionElement.style.color = "black";
-            suggestionElement.style.borderRadius = "15px"; // Rounded corners
-            suggestionElement.style.marginLeft = "10px"; // Adjust margin for bot messages
-            suggestionElement.style.display = "flex"; // Flex layout for bubble
-
-            // Create a bubble for the suggestion text
-            const bubble = document.createElement("div");
-            bubble.style.backgroundColor = "inherit"; // Inherit background color
-            bubble.style.padding = "10px"; // Padding for the bubble
-            bubble.style.borderRadius = "15px"; // Rounded corners for bubble
-            bubble.textContent = suggestion;
-
-            // Append the bubble to the suggestion element
-            suggestionElement.appendChild(bubble);
-
-            messageContainer.appendChild(suggestionElement);
-        }
-
-        async function fetchModelData() {
-            try {
-                const response = await fetch('http://127.0.0.1:6100/get_data'); // Replace with the correct file path
-                if (!response.ok) {
-                    throw new Error('Failed to fetch model data');
-                }
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Error fetching model data:', error);
-                return null;
-            }
-        }
-
         // Modify the event listener for the send button (arrow)
-        document.getElementById('sendButton').addEventListener('click', async function(event) {
+        document.getElementById('sendButton').addEventListener('click', function(event) {
             event.preventDefault();
             const chatInput = document.getElementById('chatInput');
-            const Question = chatInput.value;
+            const question = chatInput.value;
 
-            // Fetch the model data
-            const modelData = await fetchModelData();
+            addMessage(question, true);
 
-            if (modelData && modelData.model) {
-                const model = modelData.model;
+            // Simulated response for demonstration
+            const answer = "This is a sample response.";
+            addMessage(answer, false);
 
-                addMessage(Question, true);
-
-                // Make a POST request to your Flask API
-                const response = await fetch('http://localhost:6500/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ Question, model }),
-                });
-
-                if (response.ok) {
-                    const responseData = await response.json();
-                    const botResponse = responseData.response;
-                    console.log("Bot Response:", botResponse); // Add this line for debugging
-                    addMessage(botResponse, false);
-                } else {
-                    // Handle errors if needed
-                    console.error('Failed to fetch bot response from the API');
-                }
-
-                chatInput.value = ''; // Clear the chat input after sending a message
-            }
+            chatInput.value = '';
         });
